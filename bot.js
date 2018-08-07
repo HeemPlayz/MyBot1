@@ -30,18 +30,6 @@ client.on('message', msg => {
     }
 });
 
-const figlet = require('figlet');
-client.on('message', message => {
-if (message.content.startsWith(Prefix + 'tag')) {
-    let args = message.content.split(" ").slice(1);
-if(!args[0]) return message.reply('مرجو كتابة نص الدي تريد');  
-
-    figlet(args.join(" "), (err, data) => {
-              message.channel.send("``" + data + "``") //  عدل على النقاط وحطهم 3 من الجهتين مثل`` كذا تزيد واحد
-           })
-}
-});
-
 client.on("message", (message) => {
     if (message.content.startsWith(".ban ")) {
       if(!message.member.hasPermission('BAN_MEMBERS')) return message.reply('⚠ ماعندك الصلاحيات');
