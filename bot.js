@@ -16,111 +16,173 @@ client.on('ready', () => {
     console.log(`Users! [ " ${client.users.size} " ]`);
     console.log('')
     console.log('╚[════════════════════════════════════]╝')
-  });
-
-client.on("message", (message) => {
-  if (message.content.startsWith(Prefix + "help")) {
-    message.channel.send("```\n.help\n.invite\n.status\n.id\n.bc\n.server\n.invites\n.croles\n.crooms\n.moveall\n.cc\n.info```");
-  }
-});
-
-client.on('message', msg => {
-    if (msg.content === ".invite") {
-      msg.reply('https://discordapp.com/api/oauth2/authorize?client_id=465429074169561088&permissions=0&scope=bot');
-    }
-});
-
-client.on("message", (message) => {
-    if (message.content.startsWith(".ban ")) {
-      if(!message.member.hasPermission('BAN_MEMBERS')) return message.reply('⚠ ماعندك الصلاحيات');
-        var member= message.mentions.members.first();
-        member.ban().then((member) => {
-            message.channel.send(member.displayName + " لقد تم حظره بنجاح 👋 ");
-        }).catch(() => {
-            message.channel.send("❌ هناك خطاء حاول مره أخرى❌ ");
-        });
-    }
+          client.user.setActivity(".help | By: YodaBrro#4557",{type: 'STREAMING'});          
 });
 
 client.on('message', message => {
-    if (message.content.startsWith(".id")) {
-                 if(!message.channel.guild) return message.reply('** This command only for servers**');
- 
-                var mentionned = message.mentions.users.first();
-     var mentionavatar;
-       if(mentionned){
-           var mentionavatar = mentionned;
-       } else {
-           var mentionavatar = message.author;
-           
-       }
-    let embed = new Discord.RichEmbed()
-   .setColor("RANDOM")
-    .setThumbnail(`${mentionavatar.avatarURL}`)
-   .addField("Name:",`<@` + `${mentionavatar.id}` + `>`, true)
-   .addField('Discrim:',"#" +  `${mentionavatar.discriminator}`, true)
-    .addField("ID:", "**[" + `${mentionavatar.id}` + "]**", true)
-   .addField("Create At:", "**[" + `${mentionavatar.createdAt}` + "]**", true)
-      
-      
-   message.channel.sendEmbed(embed);
-   console.log('[id] Send By: ' + message.author.username)
-     }
-});
-
-client.on('message', message => {
-    
-        if (message.author.id === client.user.id) return;
-        if (message.guild) {
-       let embed = new Discord.RichEmbed()
-        let args = message.content.split(' ').slice(1).join(' ');
-    if(message.content.split(' ')[0] == ".bc") {
-        if (!args[1]) {
-    message.channel.send("**.bc <message>**");
-    return;
-    }
-            message.guild.members.forEach(m => {
-       if(!message.member.hasPermission('ADMINISTRATOR')) return;
-                var bc = new Discord.RichEmbed()
-                .addField('» Server :', `${message.guild.name}`)
-                .addField('» Sender : ', `${message.author.username}#${message.author.discriminator}`)
-                .addField(' » Message : ', args)
-                .setColor('#ff0000')
-                // m.send(`[${m}]`);
-                m.send(`${m}`,{embed: bc});
+    if (message.content.startsWith(".new")) {
+        const reason = message.content.split(" ").slice(1).join(" ");
+        if (!message.guild.roles.exists("name", "Support Team")) return message.channel.send(`This server doesn't have a \`Support Team\` role made, so the ticket won't be opened.\nIf you are an administrator, make one with that name exactly and give it to users that should be able to see tickets.`);
+        if (message.guild.channels.exists("name", "ticket-" + message.author.id)) return message.channel.send(`You already have a ticket open.`);
+        message.guild.createChannel(`ticket-${message.author.discriminator}`, "text").then(c => {
+            let role = message.guild.roles.find("name", "Support Team");
+            let role2 = message.guild.roles.find("name", "@everyone");
+            c.overwritePermissions(role, {
+                SEND_MESSAGES: true,
+                READ_MESSAGES: true
             });
-        }
-        } else {
-            return;
-        }
+            c.overwritePermissions(role2, {
+                SEND_MESSAGES: false,
+                READ_MESSAGES: false
+            });
+            c.overwritePermissions(message.author, {
+                SEND_MESSAGES: true,
+                READ_MESSAGES: true
+            });
+            message.channel.send(`:white_check_mark: Your ticket has been created, #${c.name}.`);
+            const embed = new Discord.RichEmbed()
+                .setColor(0xCF40FA)
+                .addField(`Hey ${message.author.username}!`, `Please try explain why you opened this ticket with as much detail as possible. Our **Support Staff** will be here soon to help.`)
+                .setTimestamp();
+            c.send({
+                embed: embed
+            });
+        }).catch(console.error); 
+    }
+
+
+    if (message.content.startsWith(".close")) {
+        if (!message.channel.name.startsWith(`ticket-`)) return message.channel.send(`You can't use the close command outside of a ticket channel.`);
+
+        message.channel.send(`Are you sure? Once confirmed, you cannot reverse this action!\nTo confirm, type \`.close\`. This will time out in 10 seconds and be cancelled.`)
+            .then((m) => {
+                message.channel.awaitMessages(response => response.content === '.close', {
+                        max: 1,
+                        time: 10000,
+                        errors: ['time'],
+                    })
+                    .then((collected) => {
+                        message.channel.delete();
+                    })
+                    .catch(() => {
+                        m.edit('Ticket close timed out, the ticket was not closed.').then(m2 => {
+                            m2.delete();
+                        }, 3000);
+                    });
+            });
+    }
+
 });
 
-client.on('message', function(msg) {
-    if(msg.content.startsWith (".server")) {
-      let embed = new Discord.RichEmbed()
-      .setColor('RANDOM')
-      .setThumbnail(msg.guild.iconURL)
-      .setTitle(`Showing Details Of  **${msg.guild.name}*`)
-      .addField('🌐** نوع السيرفر**',`[** __${msg.guild.region}__ **]`,true)
-      .addField('🏅** __الرتب__**',`[** __${msg.guild.roles.size}__ **]`,true)
-      .addField('🔴**__ عدد الاعضاء__**',`[** __${msg.guild.memberCount}__ **]`,true)
-      .addField('🔵**__ عدد الاعضاء الاونلاين__**',`[** __${msg.guild.members.filter(m=>m.presence.status == 'online').size}__ **]`,true)
-      .addField('📝**__ الرومات الكتابية__**',`[** __${msg.guild.channels.filter(m => m.type === 'text').size}__** ]`,true)
-      .addField('🎤**__ رومات الصوت__**',`[** __${msg.guild.channels.filter(m => m.type === 'voice').size}__ **]`,true)
-      .addField('👑**__ الأونـر__**',`**${msg.guild.owner}**`,true)
-      .addField('🆔**__ ايدي السيرفر__**',`**${msg.guild.id}**`,true)
-      .addField('📅**__ تم عمل السيرفر في__**',msg.guild.createdAt.toLocaleString())
-      msg.channel.send({embed:embed});
+client.on('message', msg => { 
+    if (msg.content.startsWith(`.report`)) {
+    
+       let args = msg.content.split(" ").slice(1);
+    
+      if (!msg.mentions.members.first()) return msg.reply(`Mention Someone`)
+    
+      if (!args[1]) return msg.reply(`What is the Report ؟؟`)
+    
+      if (msg.guild.channels.find('name', 'logs')) {
+    
+        msg.guild.channels.find('name', 'logs').send(`
+      Report On : ${msg.mentions.members.first()}
+      Reported By : ${msg.member}
+      Reason : **${args.join(" ").split(msg.mentions.members.first()).slice(' ')}**
+      `)
+      }
     }
-  });
+});
 
-  client.on('message', message => {
-    var args = message.content.split(/[ ]+/)
-    if(message.content.includes('https://')){
-      if(!message.member.hasPermission('ADMINISTRATOR'))
-        message.delete()
-    return message.reply(`** Links Aren't allowed in The __Server__  :angry: ! **`)
-    }
+var prefix = ".";
+client.on('message', message => {
+  if (message.author.bot) return;
+  if (!message.content.startsWith(prefix)) return;
+  if(!message.channel.guild) return;
+  if(!message.member.hasPermission('MANAGE_MESSAGES')) return;
+  if (message.mentions.users.size < 1) return;
+
+  let command = message.content.split(" ")[0];
+  command = command.slice(prefix.length);
+
+  let args = message.content.split(" ").slice(1);
+  
+ 
+
+if (command == ".warn") {
+    let say = new Discord.RichEmbed()
+    .setDescription(args.join("  "))
+    .setColor(0x831f18)
+    message.channel.sendEmbed(say);
+    client.channels.get("477492653886406681").send(`**=========================================**`)
+    client.channels.get("477492653886406681").send(`**New Warn !**`)
+    client.channels.get("477492653886406681").send({embed : say})
+    client.channels.get("477492653886406681").send(`**Admin : ${message.author.username}#${message.author.discriminator}**`)
+    client.channels.get("477492653886406681").send(`**In Channel : ${message.channel}**`)
+    message.delete();
+  }
+
+
+});
+
+client.on('message', message => {
+    if (message.author.bot) return;
+    if (!message.content.startsWith(".announce")) return;
+  
+    let command = message.content.split(" ")[0];
+    command = command.slice(prefix.length);
+  
+    let args = message.content.split(" ").slice(1);
+
+  let rank = message.guild.member(message.author).roles.find('name', 'Executive' , 'Manager');
+  if (!rank) return message.reply('You Do not Have the Role to Execute The Command')
+    message.channel.send(args.join("  "))
+      message.delete();
+    
+    
+  
+  
+});
+
+client.on('message',function(message) {
+    let w = ['Rock','Paper','Scissors'];
+   if(message.content.startsWith(prefix + "rps")) {
+       message.channel.send(`\`\`\`css
+Choose one of the following.
+#1 ( Rock )
+#2 ( Paper )
+#3 ( Scissors )
+\`\`\`
+
+__You Have 5 Seconds To Choose__`)
+.then(() => {
+  message.channel.awaitMessages(response => response.content === '1', {
+    max: 1,
+    time: 5000,
+    errors: ['time'],
+  })
+  .then((collected) => {
+      if(message.author !== message.author)return;
+     message.channel.send('🏵 ' + w[Math.floor(Math.random() * w.length)]);
+    });
+});
+  message.channel.awaitMessages(response => response.content === '2', {
+    max: 1,
+    time: 5000,
+    errors: ['time'],
+  })
+  .then((collected) => {
+     message.channel.send('🏵 ' + w[Math.floor(Math.random() * w.length)]);
+    });
+      message.channel.awaitMessages(response => response.content === '3', {
+    max: 1,
+    time: 5000,
+    errors: ['time'],
+  })
+  .then((collected) => {
+     message.channel.send('🏵 ' + w[Math.floor(Math.random() * w.length)]);
+    });
+   } 
 });
 
 client.on('message', message => {
@@ -129,133 +191,142 @@ client.on('message', message => {
        let user = message.mentions.users.first() || message.author
        let personalInvites = invs.filter(i => i.inviter.id === user.id);
        let inviteCount = personalInvites.reduce((p, v) => v.uses + p, 0);
- message.channel.send(`${user} has ${inviteCount} invites.`);
+ message.channel.send(`${user} has __${inviteCount}__ **invites.**`);
  });
    }
 });
 
-client.on('message', message => {
-    if (message.content === ".croles") {
-    if(!message.channel.guild) return message.channel.send('**This Command Only For Servers !**')
-            if (!message.member.hasPermission('MANAGE_ROLES')) return message.channel.send(`**${message.author.username} You Dont Have** ``MANAGE_ROLES`` **Premission**`);
+var request = require('request');
 
-                     message.guild.createRole({ name: "Owner", color: "#0a0a0a", permissions: [] })
-                     message.guild.createRole({ name: "Co-Owner", color: "#dd0fd3", permissions: [] })
-                     message.guild.createRole({ name: "Admin", color: "#a80608", permissions: [] })
-                     message.guild.createRole({ name: "Mod", color: "#07ac1e", permissions: [] })
-                     message.guild.createRole({ name: "Staff", color: "#ac3607", permissions: [] })
-                     message.guild.createRole({ name: "Support", color: "#ffffff", permissions: [] })
-                     message.guild.createRole({ name: "King", color: "#ffffff", permissions: [] })
-                     message.guild.createRole({ name: "Qween", color: "#ffffff", permissions: [] })
-                     message.guild.createRole({ name: "HighNiss", color: "#ffffff", permissions: [] })
-                     message.guild.createRole({ name: "Pros", color: "#ffffff", permissions: [] })
-                     message.guild.createRole({ name: "VIP+", color: "#ffffff", permissions: [] })
-                     message.guild.createRole({ name: "VIP", color: "#ffffff", permissions: [] })
-                     message.guild.createRole({ name: "Active", color: "#ffffff", permissions: [] })
-                     message.guild.createRole({ name: "Members", color: "#ffffff", permissions: [] })
-        
+var mcCommand = '.mc'; // Command for triggering
 
-message.channel.sendMessage('**Please wait Untill __Roles__ are Created **')
-}
-});
+var mcIP = 'cmblock.net'; // Your MC server IP
+
+var mcPort = 26613; // Your MC server port
+
 
 client.on('message', message => {
-    if (message.content === ".crooms") {
-    if(!message.channel.guild) return message.channel.send('**This Command Only For Servers !**')
-            if (!message.member.hasPermission('MANAGE_CHANNELS')) return message.channel.send(`**${message.author.username} You Dont Have** ``MANAGE_CHANNELS`` **Premission**`);
 
-        
-     message.guild.createChannel('「 O W N E R 」', 'voice')
-     message.guild.createChannel('「 C O - L E A D E R 」', 'voice')
-     message.guild.createChannel('「ADMINSTRATOR」', 'voice')
-     message.guild.createChannel('𖦲₁PARTY | بارتي𖦲', 'voice')
-     message.guild.createChannel('𖦲₂PARTY | بارتي𖦲', 'voice')
-     message.guild.createChannel('𖦲₂PARTY | بارتي𖦲', 'voice')
-     message.guild.createChannel('✬ʝuşτ-1✬', 'voice')
- message.guild.createChannel('✬ʝuşτ-2✬', 'voice')
-     message.guild.createChannel('✬ʝuşτ-3✬', 'voice')
-     message.guild.createChannel('✬ʝuşτ-4✬', 'voice')
-     message.guild.createChannel('✬ʝuşτ-5✬', 'voice')
-     message.guild.createChannel('😴sleep', 'voice')
-          message.guild.createChannel('༆كَبّـآرَ آلَشّـخٌـصِـيّآتُ༆', 'voice')
-     message.guild.createChannel('welcome', 'text')
-     message.guild.createChannel('info', 'text')
-     message.guild.createChannel('bot', 'text')
-     message.guild.createChannel('chat', 'text')
-     message.guild.createChannel('Youtube', 'text')
-     message.guild.createChannel('bo7', 'text')
-     message.guild.createChannel('party', 'text')
-     message.guild.createChannel('pic', 'text')
+    if (message.content === mcCommand) {
 
+        var url = 'http://mcapi.us/server/status?ip=' + mcIP + '&port=' + mcPort;
 
-message.channel.sendMessage('**Please Wait Untill __Rooms__ are Created**')
-}
-});
+        request(url, function(err, response, body) {
 
-client.on('message', message => {
-    if(message.content.startsWith(".moveall")) {
-     if (!message.member.hasPermission("MOVE_MEMBERS")) return message.channel.send('**لايوجد لديك صلاحية سحب الأعضاء**');
-       if(!message.guild.member(client.user).hasPermission("MOVE_MEMBERS")) return message.reply("**لايوجد لدي صلاحية السحب**");
-    if (message.member.voiceChannel == null) return message.channel.send(`**الرجاء الدخول لروم صوتي**`)
-     var author = message.member.voiceChannelID;
-     var m = message.guild.members.filter(m=>m.voiceChannel)
-     message.guild.members.filter(m=>m.voiceChannel).forEach(m => {
-     m.setVoiceChannel(author)
-     })
-     message.channel.send(`**تم سحب جميع الأعضاء إليك**`)
-    
-    
-     }
-});
+            if(err) {
 
-client.on('message', ra3d => {
-                            let args = ra3d.content.split(" ").slice(1).join(" ")
-    if(ra3d.content.startsWith(".cc")) {
-        if(!args) return ra3d.channel.send('`يرجي اختيار كم لون `');
-                 if (!ra3d.member.hasPermission('MANAGE_ROLES')) return ra3d.channel.sendMessage('`**⚠ | `[MANAGE_ROLES]` لا يوجد لديك صلاحية**'); 
-                  ra3d.channel.send(`**✅ |Created __${args}__ Colors**`);
-                      setInterval(function(){})
-                        let count = 0;
-                        let ecount = 0;
-              for(let x = 1; x < `${parseInt(args)+1}`; x++){
-                ra3d.guild.createRole({name:x,
-                  color: 'RANDOM'})
-                  }
+                console.log(err);
+
+                return message.reply('Error getting Minecraft server status...');
+
+            }
+
+            body = JSON.parse(body);
+
+            var status = '*cmblock is currently offline* - **IP: cmblock.net     Version(1.12.2)**';
+
+            if(body.online) {
+
+                status = '**cmblock** is **online** - **IP: cmblock.net   Version (1.12.2)**';
+
+                if(body.players.now) {
+
+                    status += '**' + body.players.now + '** people are playing! - **IP: cmblock.net     Version(1.12.2)**';
+
+                } else {
+
+                    status += ' - Nobody is playing!';
+
                 }
+
+            }
+
+            message.reply(status);
+
+        });
+
+    }
+
 });
 
-function timeCon(time) {
-    let days = Math.floor(time % 31536000 / 86400)
-    let hours = Math.floor(time % 31536000 % 86400 / 3600)
-    let minutes = Math.floor(time % 31536000 % 86400 % 3600 / 60)
-    let seconds = Math.round(time % 31536000 % 86400 % 3600 % 60)
-    days = days > 9 ? days : '0' + days
-    hours = hours > 9 ? hours : '0' + hours
-    minutes = minutes > 9 ? minutes : '0' + minutes
-    seconds = seconds > 9 ? seconds : '0' + seconds
-    return `${days > 0 ? `${days}:` : ''}${(hours || days) > 0 ? `${hours}:` : ''}${minutes}:${seconds}`
-}
+client.on('message' , async (message) => {
+    var prefix = "-"
+        if(message.content.startsWith(".topinvites")) {
+    if(message.author.bot) return;
+    if(!message.channel.guild) return message.reply(' Error : \` Guild Command \`');
+      var invites = await message.guild.fetchInvites();
+        invites = invites.array();
+        arraySort(invites, 'uses', { reverse: true });
+        let possibleInvites = ['User Invited |  Uses '];
+        invites.forEach(i => {
+            if (i.uses === 0) { 
+                return;
+            }
+          possibleInvites.push(['\n\ ' +'<@'+ i.inviter.id +'>' + '  :  ' +   i.uses]);
+          if (i.uses === 10) {//يمديك تعدل رقم وصول العدد حق الانفايت الى اأقل أو أكثر
+              message.member.addRole(message.member.guild.roles.find("name",""))//هنآ أسم ألرتبه اللي تجيهه
+    .catch(RebeL =>{
+    console.log('`Error`: ' + RebeL);
+    });
+    }
+    if (i.uses === 20) {
+    message.member.addRole(message.member.guild.roles.find("name",""))
+    .catch(RebeL =>{
+    console.log('`Error`: ' + RebeL);
+    });
+    }
+    if (i.uses === 30) {
+    message.member.addRole(message.member.guild.roles.find("name",""))
+    .catch(RebeL =>{
+    console.log('`Error`: ' + RebeL);
+    });
+          }//معلومه بسيطه يمديك تكرر العمليهه أكثر من مره
+        })
+        const embed = new Discord.RichEmbed()
+     .setColor('#36393e')
+        .addField("Top Invites." ,`${(possibleInvites)}`)
+    
+        message.channel.send(embed)
+        }
+});
+
 client.on('message', message => {
-    if (message.content.startsWith(".info")) {
-    message.channel.send({
-        embed: new Discord.RichEmbed()
-            .setAuthor(client.user.username,client.user.avatarURL)
-            .setThumbnail(client.user.avatarURL)
-            .setColor('RANDOM')
-            .setTitle('``INFO Arab Bot`` ')
-            .addField('``Uptime``', [timeCon(process.uptime())], true)
-            .addField('``My Ping``' , [`${Date.now() - message.createdTimestamp}` + 'MS'], true)
-            .addField('``RAM Usage``', `[${(process.memoryUsage().rss / 1048576).toFixed()}MB]`, true)
-            .addField('``servers``', [client.guilds.size], true)
-            .addField('``channels``' , `[ ${client.channels.size} ]` , true)
-            .addField('``Users``' ,`[ ${client.users.size} ]` , true)
-            .addField('``My Name``' , `[ ${client.user.tag} ]` , true)
-            .addField('``My ID``' , `[ ${client.user.id} ]` , true)
-                  .addField('``My Prefix``' , `.` , true)
-                  .addField('``My Language``' , `[ Java Script ]` , true)
-                  .setFooter('By | YodaBrro#4557')
-    })
-}
+    if (message.author.bot) return;
+     if (message.content === ".help") {
+		 message.channel.send('**The Message Was Sent On Private**');
+            
+	
+		 
+
+
+ message.author.sendMessage(`
+ **
+__Cm-Bot__
+╔[❖════════════❖]╗
+             Prefix = ' . '
+╚[❖════════════❖]╝
+
+╔[❖════════════❖]╗
+             Admin Commands
+╚[❖════════════❖]╝
+
+ ❖ .new ➾ Open a New Ticket
+ 
+ ❖ .close ➾ close your Ticket
+
+ ❖ .report <mention> <reason> ➾ Repote a Player
+
+ ❖ .announce <message> (Admin Only) ➾ Send a Message
+
+ ❖ .invites or .invites <@mentions> ➾ Know How many Players Joined from your Invite
+  
+ ❖ .mc ➾ Know the MC Server Status
+
+ ❖ Note: Make Sure to __Enable__ Direct Messages
+
+`);
+
+    }
 });
 
 client.login(process.env.BOT_TOKEN);
