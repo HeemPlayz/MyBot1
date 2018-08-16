@@ -838,7 +838,7 @@ reaction3.on("collect", r => {
 });
 
 client.on('message', message => {
-if(message.content == '<@478294799905062912>') {
+if(message.content == '<478294799905062912>') {
 message.channel.startTyping()
 setTimeout(() => { 
 message.channel.stopTyping()
