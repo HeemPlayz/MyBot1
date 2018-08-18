@@ -866,4 +866,21 @@ var owners = ['441963199462506508','ايدي الاونر2']
         }
       });
 
+client.on('message', message => {
+    var args = message.content.split(/[ ]+/)
+    if(message.content.includes('discord.gg')){
+        message.delete()
+      message.channel.sendMessage("", {embed: {
+        title: "No Advertising",
+        color: 0x06DF00,
+        description: "Advertising Cause a Perm **ban**",
+        footer: {
+          text: "YodaBrro#4557"
+        }
+      }}).then(msg => {msg.delete(3000)});
+                          }
+
+     
+}); 
+
 client.login(process.env.BOT_TOKEN);
