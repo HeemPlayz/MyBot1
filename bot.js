@@ -16,11 +16,11 @@ client.on('ready', () => {
     console.log(`Users! [ " ${client.users.size} " ]`);
     console.log('')
     console.log('╚[════════════════════════════════════]╝')
-          client.user.setActivity(".help | By: YodaBrro#4557",{type: 'STREAMING'});          
+          client.user.setActivity("${client.guilds.size} | By: YodaBrro#4557",{type: 'STREAMING'});          
 });
 
 client.on('message', message => {
-    if (message.content.startsWith(".new")) {
+    if (message.content.startsWith("~new")) {
         const reason = message.content.split(" ").slice(1).join(" ");
         if (!message.guild.roles.exists("name", "Support Team")) return message.channel.send(`This server doesn't have a \`Support Team\` role made, so the ticket won't be opened.\nIf you are an administrator, make one with that name exactly and give it to users that should be able to see tickets.`);
         if (message.guild.channels.exists("name", "ticket-" + message.author.id + message.author.username)) return message.channel.send(`You already have a ticket open.`);
@@ -51,7 +51,7 @@ client.on('message', message => {
     }
 
 
-    if (message.content.startsWith(".close")) {
+    if (message.content.startsWith("~close")) {
         if (!message.channel.name.startsWith(`ticket-`)) return message.channel.send(`You can't use the close command outside of a ticket channel.`);
 
         message.channel.send(`Are you sure? Once confirmed, you cannot reverse this action!\nTo confirm, type \`.close\`. This will time out in 10 seconds and be cancelled.`)
@@ -75,7 +75,7 @@ client.on('message', message => {
 });
 
 client.on('message', msg => { 
-    if (msg.content.startsWith(`.report`)) {
+    if (msg.content.startsWith(`~report`)) {
     
        let args = msg.content.split(" ").slice(1);
     
@@ -109,7 +109,7 @@ client.on('message', message => {
   
  
 
-if (command == ".warn") {
+if (command == "~warn") {
     let say = new Discord.RichEmbed()
     .setDescription(args.join("  "))
     .setColor(0x831f18)
@@ -127,7 +127,7 @@ if (command == ".warn") {
 
 client.on('message', message => {
     if (message.author.bot) return;
-    if (!message.content.startsWith(".announce")) return;
+    if (!message.content.startsWith("~announce")) return;
   
     let command = message.content.split(" ")[0];
     command = command.slice(prefix.length);
@@ -146,7 +146,7 @@ client.on('message', message => {
 
 client.on('message',function(message) {
     let w = ['Rock','Paper','Scissors'];
-   if(message.content.startsWith(prefix + "rps")) {
+   if(message.content.startsWith(prefix + "~rps")) {
        message.channel.send(`\`\`\`css
 Choose one of the following.
 #1 ( Rock )
@@ -186,7 +186,7 @@ __You Have 5 Seconds To Choose__`)
 });
 
 client.on('message', message => {
-    if(message.content.startsWith(".invites")) {
+    if(message.content.startsWith("~invites")) {
      message.guild.fetchInvites().then(invs => {
        let user = message.mentions.users.first() || message.author
        let personalInvites = invs.filter(i => i.inviter.id === user.id);
@@ -250,8 +250,7 @@ client.on('message', message => {
 });
 
 client.on('message' , async (message) => {
-    var prefix = "-"
-        if(message.content.startsWith(".topinvites")) {
+        if(message.content.startsWith("~topinvites")) {
     if(message.author.bot) return;
     if(!message.channel.guild) return message.reply(' Error : \` Guild Command \`');
       var invites = await message.guild.fetchInvites();
@@ -301,26 +300,26 @@ client.on('message', message => {
 
  message.author.sendMessage(`
  **
-__Cm-Bot__
+__SmartChoice Bot__
 ╔[❖════════════❖]╗
-             Prefix = ' . '
+             Prefix = ' ~ '
 ╚[❖════════════❖]╝
 
 ╔[❖════════════❖]╗
              Admin Commands
 ╚[❖════════════❖]╝
 
- ❖ .new ➾ Open a New Ticket
+ ❖ ~new ➾ Open a New Ticket
  
- ❖ .close ➾ close your Ticket
+ ❖ ~close ➾ close your Ticket
 
- ❖ .report <mention> <reason> ➾ Repote a Player
+ ❖ ~report <mention> <reason> ➾ Repote a Player
 
- ❖ .announce <message> (Admin Only) ➾ Send a Message
+ ❖ ~announce <message> (Admin Only) ➾ Send a Message
 
- ❖ .invites or .invites <@mentions> ➾ Know How many Players Joined from your Invite
+ ❖ ~invites or .invites <@mentions> ➾ Know How many Players Joined from your Invite
   
- ❖ .mc ➾ Know the MC Server Status
+ ❖ ~mc ➾ Know the MC Server Status
 
  ❖ Note: Make Sure to __Enable__ Direct Messages
 
