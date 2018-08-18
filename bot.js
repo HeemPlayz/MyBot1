@@ -146,7 +146,7 @@ client.on('message', message => {
 
 client.on('message',function(message) {
     let w = ['Rock','Paper','Scissors'];
-   if(message.content.startsWith(prefix + "~rps")) {
+   if(message.content.startsWith("~rps")) {
        message.channel.send(`\`\`\`css
 Choose one of the following.
 #1 ( Rock )
