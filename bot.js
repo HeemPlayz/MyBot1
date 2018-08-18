@@ -134,7 +134,7 @@ client.on('message', message => {
   
     let args = message.content.split(" ").slice(1);
 
-  let rank = message.guild.member(message.author).roles.find('name', 'Founder' , 'Manager');
+  let rank = message.guild.member(message.author).roles.find('name', 'Founder' , 'Developer');
   if (!rank) return message.reply('You Do not Have the Role to Execute The Command')
     message.channel.send(args.join("  "))
       message.delete();
