@@ -845,4 +845,25 @@ message.channel.stopTyping()
 }
 });
 
+client.on('message',async message => {
+var owners = ['441963199462506508','ايدي الاونر2']
+        if(message.content.startsWith("~restart")) {
+         if(!owners.includes(message.author.id)) return;
+            message.channel.send('**Restarting.**').then(msg => {
+                setTimeout(() => {
+                   msg.edit('**Restarting..**');
+                },1000);
+                setTimeout(() => {
+                   msg.edit('**Restarting...**');
+                },2000);
+            });
+            console.log(`${message.author.tag} [ ${message.author.id} ] has restarted the bot.`);
+            console.log(`Restarting..`);
+            setTimeout(() => {
+                client.destroy();
+                client.login('process.env.BOT_TOKEN');
+            },3000);
+        }
+      });
+
 client.login(process.env.BOT_TOKEN);
