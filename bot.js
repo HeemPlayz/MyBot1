@@ -16,7 +16,7 @@ client.on('ready', () => {
     console.log(`Users! [ " ${client.users.size} " ]`);
     console.log('')
     console.log('╚[════════════════════════════════════]╝')
-          client.user.setActivity("${client.guilds.size} | By: YodaBrro#4557",{type: 'STREAMING'});          
+          client.user.setActivity("{client.guilds.size} | By: YodaBrro#4557",{type: 'STREAMING'});          
 });
 
 client.on('message', message => {
@@ -134,7 +134,7 @@ client.on('message', message => {
   
     let args = message.content.split(" ").slice(1);
 
-  let rank = message.guild.member(message.author).roles.find('name', 'Executive' , 'Manager');
+  let rank = message.guild.member(message.author).roles.find('name', 'Founder/Creator' , 'Manager');
   if (!rank) return message.reply('You Do not Have the Role to Execute The Command')
     message.channel.send(args.join("  "))
       message.delete();
